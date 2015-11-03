@@ -1,17 +1,17 @@
 // RootViewController.m
 //
-// Copyright (c) 2011 Mattt Thompson (http://mattt.me)
-// 
+// Copyright (c) 2011–2015 Mattt Thompson (http://mattt.me)
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,6 +25,7 @@
 #import "ArrayFormatterViewController.h"
 #import "ColorFormatterViewController.h"
 #import "LocationFormatterViewController.h"
+#import "NameFormatterViewController.h"
 #import "OrdinalNumberFormatterViewController.h"
 #import "TimeIntervalFormatterViewController.h"
 #import "UnitOfInformationFormatterViewController.h"
@@ -35,6 +36,7 @@ NS_ENUM(NSUInteger, RootViewControllerRowIndexes) {
     ArrayRowIndex,
     ColorRowIndex,
     LocationRowIndex,
+    NameRowIndex,
     OrdinalNumberRowIndex,
     TimeIntervalRowIndex,
     UnitOfInformationRowIndex,
@@ -48,7 +50,7 @@ NS_ENUM(NSUInteger, RootViewControllerRowIndexes) {
     if (!self) {
         return nil;
     }
-    
+
     return self;
 }
 
@@ -56,16 +58,16 @@ NS_ENUM(NSUInteger, RootViewControllerRowIndexes) {
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+
     self.title = NSLocalizedString(@"FormatterKit", nil);
-    
+
     self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Back", nil) style:UIBarButtonItemStyleDone target:nil action:nil];
 }
 
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    
+
     [self.tableView deselectRowAtIndexPath:[self.tableView indexPathForSelectedRow] animated:YES];
 }
 
@@ -78,19 +80,19 @@ NS_ENUM(NSUInteger, RootViewControllerRowIndexes) {
 - (NSInteger)tableView:(__unused UITableView *)tableView
  numberOfRowsInSection:(__unused NSInteger)section
 {
-    return 7;
+    return 9;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView
          cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     static NSString *CellIdentifier = @"Cell";
-    
+
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (!cell) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier];
     }
-    
+
     switch (indexPath.row) {
         case AddressRowIndex:
             cell.textLabel.text = NSLocalizedString(@"Address Formatter", nil);
@@ -103,6 +105,9 @@ NS_ENUM(NSUInteger, RootViewControllerRowIndexes) {
             break;
         case LocationRowIndex:
             cell.textLabel.text = NSLocalizedString(@"Location Formatter", nil);
+            break;
+        case NameRowIndex:
+            cell.textLabel.text = NSLocalizedString(@"Name Formatter", nil);
             break;
         case OrdinalNumberRowIndex:
             cell.textLabel.text = NSLocalizedString(@"Ordinal Number Formatter", nil);
@@ -119,7 +124,7 @@ NS_ENUM(NSUInteger, RootViewControllerRowIndexes) {
         default:
             break;
     }
-    
+
     return cell;
 }
 
@@ -142,6 +147,9 @@ didSelectRowAtIndexPath:(NSIndexPath *)indexPath
         case LocationRowIndex:
             viewController = [[LocationFormatterViewController alloc] init];
             break;
+        case NameRowIndex:
+            viewController = [[NameFormatterViewController alloc] init];
+            break;
         case OrdinalNumberRowIndex:
             viewController = [[OrdinalNumberFormatterViewController alloc] init];
             break;
@@ -155,7 +163,7 @@ didSelectRowAtIndexPath:(NSIndexPath *)indexPath
             viewController = [[URLRequestFormatterViewController alloc] init];
             break;
     }
-    
+
     if (viewController) {
         [self.navigationController pushViewController:viewController animated:YES];
     }

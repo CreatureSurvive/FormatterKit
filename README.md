@@ -8,6 +8,7 @@ In short, use this library if you're manually formatting any of the following (w
 * __Arrays__: Display `NSArray` elements in a comma-delimited list *(e.g. "Russell, Spinoza & Rawls")*
 * __Colors__: RGB, CMYK, and HSL your ROY G. BIV in style. *(e.g. `#BADF00D`, `rgb(255, 100, 42)`)*
 * __Location, Distance & Direction__: Show `CLLocationDistance`, `CLLocationDirection`, and `CLLocationSpeed` in metric or imperial units *(eg. "240ft Northwest" / "45 km/h SE")*
+* __Names__: Display personal names in the correct format, according to the current locale and source language *(eg. "山田花子" for the Japanese first name "花子" (Hanako) and last name "山田" (Yamada))*
 * __Ordinal Numbers__: Convert cardinal `NSNumber` objects to their ordinal in most major languages *(eg. "1st, 2nd, 3rd" / "1ère, 2ème, 3ème")*
 * __Time Intervals__: Show relative time distance between any two `NSDate` objects *(e.g. "3 minutes ago" / "yesterday")*
 * __Units of Information__: Humanized representations of quantities of bits and bytes *(e.g. "2.7 MB")*
@@ -20,6 +21,8 @@ In short, use this library if you're manually formatting any of the following (w
 FormatterKit comes fully internationalized, with `.strings` files for the following locales:
 
 - Catalan (`ca`)
+- Chinese (Simplified) (`zh_Hans`)
+- Chinese (Traditional) (`zh_Hant`)
 - Czech (`cs`)
 - Danish (`da`)
 - Dutch (`nl`)
@@ -27,6 +30,7 @@ FormatterKit comes fully internationalized, with `.strings` files for the follow
 - German (`de`)
 - Greek (`el`)
 - French (`fr`)
+- Hebrew (`he`)
 - Indonesian (`id`)
 - Italian (`it`)
 - Korean (`ko`)
@@ -38,6 +42,7 @@ FormatterKit comes fully internationalized, with `.strings` files for the follow
 - Spanish (`es`)
 - Swedish (`sv`)
 - Turkish (`tr`)
+- Ukranian (`uk`)
 - Vietnamese (`vi`)
 
 If you'd like to contribute an additional localization, feel free to [open a new pull request](https://github.com/mattt/FormatterKit/pulls).
@@ -47,6 +52,15 @@ If you'd like to contribute an additional localization, feel free to [open a new
 Because the App Store automatically attempts to determine supported locales, and FormatterKit includes localizations for the aforementioned locales, you may want to remove the `.strings` file and `.lproj` directory. You can do this most easily by having the following command run in a new Build Phase:
 
         $ find "$TARGET_BUILD_DIR" -maxdepth 8 -type f -name "FormatterKit.strings" -execdir rm -r -v {} \;
+
+If you are using CocoaPods, you may want to remove unwanted localizations using the pre install script below. Modify the supported_locales array to match your supported locales and paste it into your Podfile.
+
+```ruby
+prepare_command = <<-CMD
+    SUPPORTED_LOCALES="['base', 'da', 'en']"
+    find . -type d ! -name "*$SUPPORTED_LOCALES.lproj" | grep .lproj | xargs rm -rf
+CMD
+```
 
 ## Demo
 
@@ -153,13 +167,32 @@ NSLog(@"%@", [locationFormatter stringFromLocation:austin]);
 // (30.2669444, -97.7427778)
 ```
 
+## TTTNameFormatter
+
+`TTTNameFormatter` formats names according to the internationalization standards of the AddressBook framework, which determine, for example, the display order of names and whether or not to delimit components with whitespace.
+
+> `TTTNameFormatter` is not available on OS X.
+
+### Example Usage
+
+```objective-c
+TTTNameFormatter *nameFormatter = [[TTTNameFormatter alloc] init];
+NSString *frenchName = [nameFormatter stringFromPrefix:nil firstName:@"Guillaume" middleName:@"François" lastName:@"Antoine" suffix:@"Marquis de l'Hôpital"];
+NSLog(@"%@", frenchName);
+// "Guillaume François Antoine Marquis de l'Hôpital"
+
+NSString *japaneseName = [nameFormatter stringFromFirstName:@"孝和" lastName:@"関"];
+NSLog(@"%@", japaneseName);
+// "関孝和"
+```
+
 ## TTTOrdinalNumberFormatter
 
 `NSNumberFormatter` is great for [Cardinal numbers](http://en.wikipedia.org/wiki/Cardinal_number) (17, 42, 69, etc.), but it doesn't have built-in support for [Ordinal numbers](http://en.wikipedia.org/wiki/Ordinal_number_(linguistics)) (1st, 2nd, 3rd, etc.)
 
 A naïve implementation might be as simple as throwing the one's place in a switch statement and appending "-st", "-nd", etc. But what if you want to support French, which appends "-er", "-ère", and "-eme" in various contexts? How about Spanish? Japanese?
 
-`TTTOrdinalNumberFormatter` supports English, Spanish, French, German, Irish, Italian, Japanese, Dutch, Portuguese, and Mandarin Chinese. For other languages, you can use the standard default, or override it with your own. For languages whose ordinal indicator depends upon the grammatical properties of the predicate, `TTTOrdinalNumberFormatter` can format according to a specified gender and/or plurality.
+`TTTOrdinalNumberFormatter` supports English, Spanish, French, German, Irish, Italian, Japanese, Dutch, Portuguese, Simplified Chinese and Swedish. For other languages, you can use the standard default, or override it with your own. For languages whose ordinal indicator depends upon the grammatical properties of the predicate, `TTTOrdinalNumberFormatter` can format according to a specified gender and/or plurality.
 
 ### Example Usage
 
@@ -174,7 +207,7 @@ NSLog(@"%@", [NSString stringWithFormat:NSLocalizedString(@"You came in %@ place
 Assuming you've provided localized strings for "You came in %@ place!", the output would be:
 
 - English: "You came in 2nd place!"
-- French: "Vous êtes venu à la 2eme place!"
+- French: "Vous êtes arrivé à la 2e place !"
 - Spanish: "Usted llegó en 2.o lugar!"
 
 ## TTTTimeIntervalFormatter
@@ -188,22 +221,22 @@ iOS 4 introduced a `-doesRelativeDateFormatting` property for `NSDateFormatter`,
 ```objective-c
 TTTTimeIntervalFormatter *timeIntervalFormatter = [[TTTTimeIntervalFormatter alloc] init];
 [timeIntervalFormatter stringForTimeInterval:0]; // "just now"
-[timeIntervalFormatter stringForTimeInterval:100]; // "1 minute ago"
-[timeIntervalFormatter stringForTimeInterval:8000]; // "2 hours ago"
+[timeIntervalFormatter stringForTimeInterval:-100]; // "1 minute ago"
+[timeIntervalFormatter stringForTimeInterval:-8000]; // "2 hours ago"
 
 // Turn idiomatic deictic expressions on / off
-[timeIntervalFormatter stringForTimeInterval:100000]; // "yesterday"
-[timeIntervalFormatter setUsesIdiomaticDeicticExpressions:NO];
-[timeIntervalFormatter stringForTimeInterval:100000]; // "1 day ago"
+[timeIntervalFormatter stringForTimeInterval:-100000]; // "1 day ago"
+[timeIntervalFormatter setUsesIdiomaticDeicticExpressions:YES];
+[timeIntervalFormatter stringForTimeInterval:-100000]; // "yesterday"
 
 // Customize the present tense deictic expression for
 [timeIntervalFormatter setPresentDeicticExpression:@"seconds ago"];
 [timeIntervalFormatter stringForTimeInterval:0]; // "seconds ago"
 
 // Expand the time interval for present tense
-[timeIntervalFormatter stringForTimeInterval:3]; // "3 seconds ago"
-[timeIntervalFormatter setPresentTimeIntervalMargin:3];
-[timeIntervalFormatter stringForTimeInterval:3]; // "seconds ago"
+[timeIntervalFormatter stringForTimeInterval:-3]; // "3 seconds ago"
+[timeIntervalFormatter setPresentTimeIntervalMargin:10];
+[timeIntervalFormatter stringForTimeInterval:-3]; // "seconds ago"
 ```
 
 ## TTTUnitOfInformationFormatter

@@ -1,6 +1,6 @@
 // TTTOrdinalNumberFormatter.m
 //
-// Copyright (c) 2011 Mattt Thompson (http://mattt.me)
+// Copyright (c) 2011–2015 Mattt Thompson (http://mattt.me)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -69,6 +69,8 @@ static NSString * const kTTTOrdinalNumberFormatterDefaultOrdinalIndicator = @"."
         return [self zhHansOrdinalIndicatorStringFromNumber:number];
     } else if ([languageCode isEqualToString:@"ca"]) {
         return [self caOrdinalIndicatorStringFromNumber:number];
+    } else if ([languageCode isEqualToString:@"sv"]) {
+        return [self svOrdinalIndicatorStringFromNumber:number];
     } else {
         return kTTTOrdinalNumberFormatterDefaultOrdinalIndicator;
     }
@@ -160,7 +162,7 @@ static NSString * const kTTTOrdinalNumberFormatterDefaultOrdinalIndicator = @"."
     } else {
         ordinalIndicator = @"e";
     }
-    
+
     switch (self.grammaticalNumber) {
         case TTTOrdinalNumberFormatterDual:
         case TTTOrdinalNumberFormatterTrial:
@@ -176,7 +178,7 @@ static NSString * const kTTTOrdinalNumberFormatterDefaultOrdinalIndicator = @"."
 }
 
 - (NSString *)gaOrdinalIndicatorStringFromNumber:(__unused NSNumber *)number {
-    return @"\u00fa"; // LATIN SMALL LETTER U WITH ACUTE
+    return @"\u00FA"; // LATIN SMALL LETTER U WITH ACUTE
 }
 
 - (NSString *)itOrdinalIndicatorStringFromNumber:(__unused NSNumber *)number {
@@ -191,7 +193,7 @@ static NSString * const kTTTOrdinalNumberFormatterDefaultOrdinalIndicator = @"."
 }
 
 - (NSString *)jaOrdinalIndicatorStringFromNumber:(__unused NSNumber *)number {
-    return @"\u756a";
+    return @"\u756A"; // Unicode Han Character 'to take turns; a turn, a time; to repeat'
 }
 
 - (NSString *)nlOrdinalIndicatorStringFromNumber:(__unused NSNumber *)number {
@@ -210,7 +212,24 @@ static NSString * const kTTTOrdinalNumberFormatterDefaultOrdinalIndicator = @"."
 }
 
 - (NSString *)zhHansOrdinalIndicatorStringFromNumber:(__unused NSNumber *)number {
-    return @"\u7b2c";
+    return @"\u7B2C"; // Unicode Han Character 'sequence, number; grade, degree'
+}
+
+- (NSString *)svOrdinalIndicatorStringFromNumber:(NSNumber *)number {
+    // If number % 100 is 11 or 12, ordinals are 11:e and 12:e.
+    if (NSLocationInRange([number integerValue] % 100, NSMakeRange(11, 2))) {
+        return @":e";
+    }
+    
+    // 1:a, 2:a, 3:e, 4:e and so on. Also, 21:a, 22:a, 23:e ...
+    switch ([number integerValue] % 10) {
+        case 1:
+            return @":a";
+        case 2:
+            return @":a";
+        default:
+            return @":e";
+    }
 }
 
 #pragma mark - NSFormatter
@@ -219,27 +238,27 @@ static NSString * const kTTTOrdinalNumberFormatterDefaultOrdinalIndicator = @"."
     if (![anObject isKindOfClass:[NSNumber class]]) {
         return nil;
     }
-    
+
     NSString *indicator = self.ordinalIndicator;
     if (!indicator) {
         indicator = [self localizedOrdinalIndicatorStringFromNumber:(NSNumber *)anObject];
     }
-    
+
     NSString *string = nil;
     @synchronized(self) {
         [self setPositivePrefix:nil];
         [self setPositiveSuffix:nil];
-        
+
         NSString *languageCode = [[self locale] objectForKey:NSLocaleLanguageCode];
-        if ([languageCode isEqualToString:@"zh"]) {
+        if ([languageCode hasPrefix:@"zh"]) {
             [self setPositivePrefix:indicator];
         } else {
             [self setPositiveSuffix:indicator];
         }
-        
+
         string = [super stringForObjectValue:anObject];
     }
-    
+
     return string;
 }
 
@@ -280,8 +299,8 @@ static NSString * const kTTTOrdinalNumberFormatterDefaultOrdinalIndicator = @"."
     self = [super initWithCoder:aDecoder];
 
     self.ordinalIndicator = [aDecoder decodeObjectForKey:NSStringFromSelector(@selector(ordinalIndicator))];
-    self.grammaticalGender = [aDecoder decodeIntegerForKey:NSStringFromSelector(@selector(grammaticalGender))];
-    self.grammaticalNumber = [aDecoder decodeIntegerForKey:NSStringFromSelector(@selector(grammaticalNumber))];
+    self.grammaticalGender = (TTTOrdinalNumberFormatterPredicateGrammaticalGender)[aDecoder decodeIntegerForKey:NSStringFromSelector(@selector(grammaticalGender))];
+    self.grammaticalNumber = (TTTOrdinalNumberFormatterPredicateGrammaticalNumber)[aDecoder decodeIntegerForKey:NSStringFromSelector(@selector(grammaticalNumber))];
 
     return self;
 }

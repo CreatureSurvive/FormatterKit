@@ -1,6 +1,6 @@
 // TTTOrdinalNumberFormatter.h
 //
-// Copyright (c) 2011 Mattt Thompson (http://mattt.me)
+// Copyright (c) 2011–2015 Mattt Thompson (http://mattt.me)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@ typedef NS_ENUM(NSUInteger, TTTOrdinalNumberFormatterPredicateGrammaticalGender)
 };
 
 /**
- Specifies the grammatical number of the word conjugatd by the ordinal number.
+ Specifies the grammatical number of the word conjugated by the ordinal number.
  */
 typedef NS_ENUM(NSUInteger, TTTOrdinalNumberFormatterPredicateGrammaticalNumber) {
     TTTOrdinalNumberFormatterSingular       = 1,
@@ -58,12 +58,12 @@ typedef NS_ENUM(NSUInteger, TTTOrdinalNumberFormatterPredicateGrammaticalNumber)
 @property (nonatomic, copy) NSString *ordinalIndicator;
 
 /**
- Specifies the grammatical gender of the word conjugatd by the ordinal number.
+ Specifies the grammatical gender of the word conjugated by the ordinal number.
  */
 @property (nonatomic, assign) TTTOrdinalNumberFormatterPredicateGrammaticalGender grammaticalGender;
 
 /**
- Specifies the grammatical number of the word conjugatd by the ordinal number.
+ Specifies the grammatical number of the word conjugated by the ordinal number.
  */
 @property (nonatomic, assign) TTTOrdinalNumberFormatterPredicateGrammaticalNumber grammaticalNumber;
 

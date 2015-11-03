@@ -1,6 +1,6 @@
 // TTTLocationFormatter.h
 //
-// Copyright (c) 2011 Mattt Thompson (http://mattt.me)
+// Copyright (c) 2011–2015 Mattt Thompson (http://mattt.me)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,15 @@
 typedef NS_ENUM(NSUInteger, TTTLocationFormatterCoordinateOrder) {
     TTTCoordinateLatLngOrder = 0,
     TTTCoordinateLngLatOrder,
+};
+
+/**
+ Specifies the format of coordinate pairs.
+ */
+typedef NS_ENUM(NSUInteger, TTTLocationFormatterCoordinateStyle) {
+    TTTSignedDegreesFormat = 0,         // e.g. "45.55873, -122.77854"
+    TTTDegreesFormat,                   // 45.5200° N, 122.6819° W
+    TTTDegreesMinutesSecondsFormat,     // e.g. "45° 33′ 31.43″ N, 122° 46′ 42.74″ W"
 };
 
 /**
@@ -89,6 +98,11 @@ extern TTTLocationCardinalDirection TTTLocationCardinalDirectionFromBearing(CLLo
 @property (nonatomic, assign) TTTLocationFormatterCoordinateOrder coordinateOrder;
 
 /**
+ Specifies the formatting of coordinate pairs. `TTTSignedDegreesFormat` by default.
+ */
+@property (nonatomic, assign) TTTLocationFormatterCoordinateStyle coordinateStyle;
+
+/**
  Specifies the formatting of bearing in strings. `TTTBearingWordStyle` by default.
  */
 @property (nonatomic, assign) TTTLocationFormatterBearingStyle bearingStyle;
@@ -98,7 +112,7 @@ extern TTTLocationCardinalDirection TTTLocationCardinalDirectionFromBearing(CLLo
 ///------------------------------
 
 /**
- Specifies the units used to express distance in formatted strings. `TTTMetricSystem` by default.
+ Specifies the units used to express distance in formatted strings. By default, it will look at the device locale preferences and set the appropriate value.
  */
 @property (nonatomic, assign) TTTLocationUnitSystem unitSystem;
 

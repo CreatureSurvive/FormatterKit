@@ -1,6 +1,6 @@
 // TTTArrayFormatter.h
 //
-// Copyright (c) 2011 Mattt Thompson (http://mattt.me)
+// Copyright (c) 2011–2015 Mattt Thompson (http://mattt.me)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,10 +25,10 @@
 /**
  Specifies the style of how array components are joined.
  */
-typedef enum {
+typedef NS_ENUM(NSUInteger, TTTArrayFormatterStyle) {
     TTTArrayFormatterSentenceStyle = 0, // Join with delimiters and a conjunction before the penultimate component.
     TTTArrayFormatterDataStyle,         // Join with delimiters, bound within square brackets like an array literal.
-} TTTArrayFormatterStyle;
+};
 
 /**
  Instances of `TTTArrayFormatter` create localized string representations of `NSArray` objects, and convert textual representations of arrays into `NSArray` objects.

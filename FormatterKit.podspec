@@ -1,12 +1,14 @@
 Pod::Spec.new do |s|
   s.name      = 'FormatterKit'
-  s.version   = '1.4.1'
+  s.version   = '1.8.0'
   s.license   = { :type => 'MIT' }
   s.summary   = '`stringWithFormat:` for the sophisticated hacker set.'
   s.homepage  = 'https://github.com/mattt/FormatterKit'
   s.social_media_url = 'https://twitter.com/mattt'
   s.author    = { 'Mattt Thompson' => 'm@mattt.me' }
-  s.source    = { :git => 'https://github.com/mattt/FormatterKit.git', :tag => '1.4.1' }
+  s.source    = { :git => 'https://github.com/mattt/FormatterKit.git',
+                  :tag => s.version
+                }
 
   s.description = "FormatterKit is a collection of well-crafted NSFormatter subclasses for things like units of information, distance, and relative time intervals. Each formatter abstracts away the complex business logic of their respective domain, so that you can focus on the more important aspects of your application."
 
@@ -14,8 +16,9 @@ Pod::Spec.new do |s|
 
   s.subspec 'AddressFormatter' do |ss|
     ss.source_files = 'FormatterKit/TTTAddressFormatter.{h,m}'
-    ss.resources = 'Localizations/**'
-    ss.frameworks = 'AddressBook'
+    ss.resource_bundles = {'FormatterKit' => ['Localizations/**']}
+    ss.osx.frameworks = 'AddressBook'
+    ss.ios.frameworks = 'AddressBook', 'AddressBookUI'
   end
 
   s.subspec 'ArrayFormatter' do |ss|
@@ -32,6 +35,12 @@ Pod::Spec.new do |s|
     ss.source_files = 'FormatterKit/TTTLocationFormatter.{h,m}'
     ss.resources = 'Localizations/**'
     ss.frameworks = 'CoreLocation'
+  end
+
+  s.subspec 'NameFormatter' do |ss|
+    ss.source_files = 'FormatterKit/TTTNameFormatter.{h,m}'
+    ss.resources = 'Localizations/**'
+    ss.ios.frameworks = 'AddressBook'
   end
 
   s.subspec 'OrdinalNumberFormatter' do |ss|

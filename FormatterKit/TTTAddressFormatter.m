@@ -22,7 +22,27 @@
 
 #import "TTTAddressFormatter.h"
 
-#if defined(__ABPerson__)
+#import <Availability.h>
+
+#import <AddressBook/AddressBook.h>
+
+#if __IPHONE_OS_VERSION_MIN_REQUIRED
+#import <AddressBookUI/AddressBookUI.h>
+
+#define TTTAddressStreetKey ((__bridge NSString *)kABPersonAddressStreetKey)
+#define TTTAddressLocalityKey ((__bridge NSString *)kABPersonAddressCityKey)
+#define TTTAddressRegionKey ((__bridge NSString *)kABPersonAddressStateKey)
+#define TTTAddressPostalCodeKey ((__bridge NSString *)kABPersonAddressZIPKey)
+#define TTTAddressCountryKey ((__bridge NSString *)kABPersonAddressCountryKey)
+#define TTTAddressCountryCodeKey ((__bridge NSString *)kABPersonAddressCountryCodeKey)
+#elif __MAC_OS_X_VERSION_MIN_REQUIRED
+#define TTTAddressStreetKey (kABAddressStreetKey)
+#define TTTAddressLocalityKey (kABAddressCityKey)
+#define TTTAddressRegionKey (kABAddressStateKey)
+#define TTTAddressPostalCodeKey (kABAddressZIPKey)
+#define TTTAddressCountryKey (kABAddressCountryKey)
+#define TTTAddressCountryCodeKey (kABAddressCountryCodeKey)
+#endif
 
 @implementation TTTAddressFormatter
 @synthesize locale = _locale;
@@ -47,34 +67,31 @@
     NSMutableDictionary *mutableAddressComponents = [NSMutableDictionary dictionary];
     
     if (street) {
-        mutableAddressComponents[(__bridge NSString *)kABPersonAddressStreetKey] = street;
+        mutableAddressComponents[TTTAddressStreetKey] = street;
     }
     
     if (locality) {
-        mutableAddressComponents[(__bridge NSString *)kABPersonAddressCityKey] = locality;
+        mutableAddressComponents[TTTAddressLocalityKey] = locality;
     }
     
     if (region) {
-        mutableAddressComponents[(__bridge NSString *)kABPersonAddressStateKey] = region;
+        mutableAddressComponents[TTTAddressRegionKey] = region;
     }
     
     if (postalCode) {
-        mutableAddressComponents[(__bridge NSString *)kABPersonAddressZIPKey] = postalCode;
+        mutableAddressComponents[TTTAddressPostalCodeKey] = postalCode;
     }
     
     if (country) {
-        mutableAddressComponents[(__bridge NSString *)kABPersonAddressCountryKey] = country;
+        mutableAddressComponents[TTTAddressCountryKey] = country;
     }
     
-    mutableAddressComponents[(__bridge NSString *)kABPersonAddressCountryCodeKey] = [self.locale objectForKey:NSLocaleCountryCode];
+    NSString *countryCode = [self.locale objectForKey:NSLocaleCountryCode];
+    if (countryCode) {
+        mutableAddressComponents[TTTAddressCountryCodeKey] = countryCode;
+    }
     
-#if __IPHONE_OS_VERSION_MIN_REQUIRED
-    return ABCreateStringWithAddressDictionary(mutableAddressComponents, !!country);
-#elif __MAC_OS_X_VERSION_MIN_REQUIRED
-    return [[[ABAddressBook sharedAddressBook] formattedAddressFromDictionary:mutableAddressComponents] string];
-#else
-    return nil;
-#endif
+    return [self stringForObjectValue:mutableAddressComponents];
 }
 
 #pragma mark - NSFormatter
@@ -83,8 +100,14 @@
     if (![anObject isKindOfClass:[NSDictionary class]]) {
         return nil;
     }
-    
-    return ABCreateStringWithAddressDictionary((NSDictionary *)anObject, YES);
+
+#if __IPHONE_OS_VERSION_MIN_REQUIRED
+    return ABCreateStringWithAddressDictionary((NSDictionary *)anObject, NO);
+#elif __MAC_OS_X_VERSION_MIN_REQUIRED
+    return [[[ABAddressBook sharedAddressBook] formattedAddressFromDictionary:(NSDictionary *)anObject] string];
+#else
+    return nil;
+#endif
 }
 
 - (BOOL)getObjectValue:(out __unused __autoreleasing id *)obj
@@ -122,5 +145,3 @@
 }
 
 @end
-
-#endif
